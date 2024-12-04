@@ -6,6 +6,8 @@ import (
 	"log"
 	"os"
 	"strings"
+
+	utils "github.com/jdnCreations/aoc/2024/go"
 )
 
 func solvePartOne(scanner bufio.Scanner) {
@@ -18,7 +20,7 @@ func solvePartOne(scanner bufio.Scanner) {
 	for range left {
 	 minLeft := getMin(&left)
 	 minRight := getMin(&right)
-	 dist := getDistance(minLeft, minRight)
+	 dist := utils.GetDistance(minLeft, minRight)
 	 diff = append(diff, dist)
 	}
 	
@@ -98,13 +100,6 @@ func getMin(slice *[]int) int {
 	return min
 }
 
-func getDistance(num1, num2 int) int {
-	diff := num1 - num2
-	if diff < 0 {
-		return -diff
-	}
-	return diff
-}
 
 func main() {
 	file, err := os.Open("./day1.txt")
