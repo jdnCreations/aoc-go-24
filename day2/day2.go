@@ -14,7 +14,9 @@ func countSafeReports(reports []int) int {
 	return 1
 }
 
-func checkReport(report []int, reports *int) {
+
+
+func checkReport(report []int) string {
   fmt.Println("------CHECKING REPORT-------")
   fmt.Println(report)
   // check if first value is greater than second value
@@ -30,21 +32,17 @@ func checkReport(report []int, reports *int) {
 
   for i := range report[1:] {
     if report[i] > report[i+1] && mode != "decreasing" {
-      fmt.Println("UNSAFE")
-      return 
+      return "unsafe" 
     }
     if report[i] < report[i+1] && mode != "increasing" {
-      fmt.Println("UNSAFE")
-      return
+      return "unsafe"
     }
     dist := utils.GetDistance(report[i], report[i+1])
     if dist > 3 || dist == 0 {
-      fmt.Println("distance too large")
-      return 
+      return "unsafe"
     }
   }
-  fmt.Println("SAFE")
-  *reports += 1
+  return "safe"
 }
 
 func convertStrSliceToInt(slice []string) []int {
@@ -67,9 +65,48 @@ func solvePartOne(scanner bufio.Scanner) int {
 	for scanner.Scan() {
 		values := strings.Fields(scanner.Text())
     intValues := convertStrSliceToInt(values)
-    checkReport(intValues, &safeReports)
+    res := checkReport(intValues)
+    if res == "safe" {
+      safeReports++
+    }
 	}
 	return safeReports 
+}
+
+func useProblemDampener(reports []int) string {
+  for i := range reports {
+    // run checkReport with reports missing first int
+    reportMissingFirst := make([]int, len(reports))
+    copy(reportMissingFirst, reports)
+    removedItem := append(reportMissingFirst[:i], reportMissingFirst[i+1:]...)
+    res := checkReport(removedItem)
+    if res == "safe" {
+      return "safe"
+    }
+  }
+  return "unsafe"
+}
+
+func solvePartTwo (scanner bufio.Scanner) int {
+  safeReports := 0
+
+  for scanner.Scan() {
+    values := strings.Fields(scanner.Text())
+    intValues := convertStrSliceToInt(values)
+    res := checkReport(intValues)
+    if res == "safe" {
+      safeReports++
+    }
+    if res == "unsafe" {
+      // run check with problem dampener
+      dampRes := useProblemDampener(intValues)
+      if dampRes == "safe" {
+        safeReports++
+      }
+    }
+  }
+
+  return safeReports
 }
 
 func main() {
@@ -80,6 +117,6 @@ func main() {
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
-	part1 := solvePartOne(*scanner)
+	part1 := solvePartTwo(*scanner)
 	fmt.Printf("Safe reports: %d\n", part1)
 }
